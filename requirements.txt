@@ -1,0 +1,11 @@
+# Archive Cracker - Python Dependencies
+# Install with: pip install -r requirements.txt
+
+# RAR archive support (requires unrar binary: sudo apt install unrar)
+rarfile>=4.0
+
+# 7-Zip archive support with AES-256 encryption
+py7zr>=0.20.0
+
+# Universal archive handler (fallback for CAB, ISO, and other formats)
+patool>=1.12
