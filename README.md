@@ -21,7 +21,9 @@ An advanced multi-format **archive password cracker** for educational and ethica
 - **Leetspeak**: Auto-generates leet variants (a=4, e=3, i=1, o=0, s=5, z=2)
 - **Prepend / Append**: Add known prefixes/suffixes to every candidate
 - **Multi-threading**: Configurable thread count for speed
+- **GPU acceleration** *(optional)*: `--gpu` flag delegates to `hashcat` for GPU-powered cracking
 - **Progress tracking**: Live rate (attempts/sec), current candidate, elapsed time
+- **Verbose mode**: `--verbose` / `-v` for debug-level output
 - **Graceful exit**: Ctrl+C stops cleanly, reports last tried password
 - **Auto-extract**: Extracts archive to output dir on success
 
@@ -89,6 +91,8 @@ python archive_cracker.py -f <archive> [OPTIONS]
 | `--leet`          | Apply leetspeak substitutions (a=4, e=3...)          | `False`      |
 | `-t, --threads`   | Number of threads                                    | `8`          |
 | `-o, --output`    | Directory to extract to on success                   | `./extracted`|
+| `--gpu`           | GPU acceleration via `hashcat` (ZIP/RAR/7z only)    | `False`      |
+| `-v, --verbose`   | Enable verbose/debug output                          | `False`      |
 
 ---
 
@@ -139,6 +143,37 @@ python archive_cracker.py -f file.7z --brute --charset basic --minlen 4 --maxlen
 ### Full charset brute on RAR
 ```bash
 python archive_cracker.py -f archive.rar --brute --charset full --minlen 1 --maxlen 5 -t 16 -o ./results
+```
+
+### GPU-accelerated dictionary attack (requires hashcat)
+```bash
+python archive_cracker.py -f secret.zip -d rockyou.txt --gpu
+```
+
+### GPU-accelerated mask attack
+```bash
+python archive_cracker.py -f data.rar --brute-mask '?l?l?d?d' --gpu
+```
+
+---
+
+## GPU Acceleration
+
+Pass `--gpu` to delegate the cracking job to [hashcat](https://hashcat.net/hashcat/), which can use your GPU for dramatically higher attempt rates.
+
+**Requirements:**
+- `hashcat` installed and available in your `PATH`
+- Supported archive formats: ZIP, RAR, 7z
+
+**How it works:**  
+`archive_cracker.py` builds the appropriate `hashcat` command (mode, attack type, wordlist / mask) and launches it as a subprocess. When hashcat finds the password it is reported back and printed. If hashcat is not found in `PATH` the tool exits with an error; in that case use the CPU-based `--brute` / `--dict` modes instead.
+
+```bash
+# Kali / Debian
+sudo apt install hashcat
+
+# macOS
+brew install hashcat
 ```
 
 ---
